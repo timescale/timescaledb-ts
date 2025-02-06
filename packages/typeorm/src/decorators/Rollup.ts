@@ -57,6 +57,11 @@ export function Rollup<T extends { new (...args: any[]): any }>(sourceModel: Fun
       source_column: targetBucketMetadata.source_column,
     });
 
+    const sourceMetadata = getMetadataArgsStorage().tables.find((table) => table.target === sourceModel);
+    if (!sourceMetadata) {
+      throw new Error('Source model is not a TypeORM entity');
+    }
+
     const rollupColumns = Reflect.getMetadata(ROLLUP_COLUMN_METADATA_KEY, target) || {};
 
     const rollupConfig: RollupConfig = {

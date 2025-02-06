@@ -4,7 +4,7 @@ import { HYPERTABLE_METADATA_KEY } from '../decorators/Hypertable';
 import { timescaleMethods } from '../repository/TimescaleRepository';
 import { CONTINUOUS_AGGREGATE_METADATA_KEY, ContinuousAggregateMetadata } from '../decorators/ContinuousAggregate';
 import { AGGREGATE_COLUMN_METADATA_KEY } from '../decorators/AggregateColumn';
-import { AggregateColumnOptions } from '@timescaledb/schemas';
+import { AggregateColumnOptions, RollupConfig } from '@timescaledb/schemas';
 import { validateBucketColumn } from '../decorators/BucketColumn';
 import { ROLLUP_METADATA_KEY } from '../decorators/Rollup';
 
