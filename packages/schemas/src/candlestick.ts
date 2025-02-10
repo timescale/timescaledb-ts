@@ -34,3 +34,12 @@ export const GetCandlesticksOptionsSchema = z.object({
   config: CandlestickAggregateOptionsSchema,
   where: WhereClauseSchema.optional(),
 });
+
+export const CandleStickColumnOptionsSchema = z.object({
+  time_column: z.string(),
+  price_column: z.string(),
+  volume_column: z.string(),
+  source_column: z.string(),
+});
+
+export type CandleStickColumnOptions = z.infer<typeof CandleStickColumnOptionsSchema>;

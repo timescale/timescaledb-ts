@@ -76,6 +76,17 @@ class ContinuousAggregateUpBuilder {
 
         return `time_bucket(${interval}, ${bucketColumn}) as ${alias}`;
       }
+      case 'candlestick': {
+        if (!config.time_column || !config.price_column) {
+          throw new Error('time_column and price_column are required for candlestick aggregate');
+        }
+        const args = [config.time_column, config.price_column];
+        if (config.volume_column) {
+          args.push(config.volume_column);
+        }
+
+        return `candlestick_agg(${args.map(escapeIdentifier).join(', ')}) as ${alias}`;
+      }
       default:
         throw new Error(`Unsupported aggregate type: ${config.type}`);
     }

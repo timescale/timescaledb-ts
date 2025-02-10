@@ -93,3 +93,39 @@ export class CandlestickAggregateBuilder {
     };
   }
 }
+
+export interface CandlestickMetadata {
+  propertyName: string;
+  timeColumn?: string;
+  priceColumn?: string;
+  volumeColumn?: string;
+  sourceColumn?: string;
+}
+
+export class CandlestickBuilder {
+  static generateSQL(metadata: CandlestickMetadata, isRollup: boolean = false): string {
+    if (!metadata) return '';
+
+    const targetColumn = escapeIdentifier(metadata.propertyName);
+
+    if (isRollup) {
+      if (!metadata.sourceColumn) {
+        throw new Error('source_column must be specified for candlestick rollups');
+      }
+      const sourceColumn = escapeIdentifier(metadata.sourceColumn);
+      return `rollup(${sourceColumn}) as ${targetColumn}`;
+    }
+
+    if (!metadata.timeColumn || !metadata.priceColumn) {
+      throw new Error('time_column and price_column must be specified for candlestick aggregation');
+    }
+
+    const args = [escapeIdentifier(metadata.timeColumn), escapeIdentifier(metadata.priceColumn)];
+
+    if (metadata.volumeColumn) {
+      args.push(escapeIdentifier(metadata.volumeColumn));
+    }
+
+    return `candlestick_agg(${args.join(', ')}) as ${targetColumn}`;
+  }
+}

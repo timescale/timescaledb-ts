@@ -1,5 +1,16 @@
-import { RollupConfig, RollupRule } from '@timescaledb/schemas';
+import { RollupConfig } from '@timescaledb/schemas';
 import { escapeIdentifier, escapeLiteral } from '@timescaledb/utils';
+import { CandlestickBuilder, CandlestickMetadata } from './candlestick';
+
+export interface RollupMetadata {
+  candlestick?: CandlestickMetadata;
+  rollupRules: Array<{
+    sourceColumn: string;
+    targetColumn: string;
+    aggregateType?: string;
+    rollupFn?: string;
+  }>;
+}
 
 class RollupInspectBuilder {
   constructor(private config: RollupConfig) {}
@@ -33,43 +44,62 @@ class RollupUpBuilder {
 
   constructor(private config: RollupConfig) {}
 
-  private buildRollupSelect(): string {
-    const rollupSelects = this.config.rollupOptions.rollupRules.map((rule: RollupRule) => {
-      const sourceColumn = escapeIdentifier(rule.sourceColumn);
-      const targetColumn = escapeIdentifier(rule.targetColumn || rule.sourceColumn);
+  private buildRollupSelect(metadata: {
+    candlestick?: CandlestickMetadata;
+    rollupRules: Array<{
+      sourceColumn: string;
+      targetColumn: string;
+      aggregateType?: string;
+      rollupFn?: string;
+    }>;
+  }): string {
+    const selectStatements: string[] = [];
 
-      const rollup = `rollup(${rule.sourceColumn})`;
+    const bucketInterval = escapeLiteral(this.config.rollupOptions.bucketInterval);
+    const bucketColumn = escapeIdentifier('bucket');
+    selectStatements.push(`time_bucket(${bucketInterval}::interval, ${bucketColumn}) AS ${bucketColumn}`);
 
-      switch (rule.aggregateType) {
-        case 'sum':
-          return `sum(${sourceColumn}) as ${targetColumn}`;
-        case 'avg':
-          return `avg(${sourceColumn}) as ${targetColumn}`;
-        default:
-          return `${rollup} as ${targetColumn}`;
+    if (metadata.candlestick) {
+      const rollupSql = CandlestickBuilder.generateSQL(metadata.candlestick, true);
+      if (rollupSql) {
+        selectStatements.push(rollupSql);
       }
+    }
+
+    const rollupSelects = metadata.rollupRules.map((rule) => {
+      const sourceColumn = escapeIdentifier(rule.sourceColumn);
+      const targetColumn = escapeIdentifier(rule.targetColumn);
+
+      if (rule.aggregateType) {
+        switch (rule.aggregateType) {
+          case 'sum':
+            return `sum(${sourceColumn}) as ${targetColumn}`;
+          case 'avg':
+            return `avg(${sourceColumn}) as ${targetColumn}`;
+          default:
+            return `rollup(${sourceColumn}) as ${targetColumn}`;
+        }
+      }
+
+      return `${rule.rollupFn || 'rollup'}(${sourceColumn}) as ${targetColumn}`;
     });
 
+    selectStatements.push(...rollupSelects);
+
     const sourceView = escapeIdentifier(this.config.rollupOptions.sourceView);
-    const bucketInterval = escapeLiteral(this.config.rollupOptions.bucketInterval);
-
-    const sourceBucketColumn = escapeIdentifier(this.config.rollupOptions?.bucketColumn?.source);
-    const targetBucketColumn = escapeIdentifier(this.config.rollupOptions?.bucketColumn?.target);
-
     return `
       SELECT
-        time_bucket(${bucketInterval}, ${sourceBucketColumn}) AS ${targetBucketColumn},
-        ${rollupSelects.join(',\n        ')}
+        ${selectStatements.join(',\n        ')}
       FROM ${sourceView}
-      GROUP BY 1 WITH ${this.config.rollupOptions.materializedOnly ? '' : 'NO '}DATA;
+      GROUP BY 1${this.config.rollupOptions.materializedOnly ? ' WITH ' : ' WITH NO '}DATA;
     `;
   }
 
-  public build(): string {
+  public build(metadata: RollupMetadata): string {
     const viewName = escapeIdentifier(this.config.rollupOptions.name);
     this.statements.push(
       `CREATE MATERIALIZED VIEW ${viewName}
-      WITH (timescaledb.continuous) AS ${this.buildRollupSelect()}`,
+      WITH (timescaledb.continuous) AS ${this.buildRollupSelect(metadata)}`,
     );
 
     return this.statements.join('\n');
