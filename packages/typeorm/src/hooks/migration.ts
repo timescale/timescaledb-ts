@@ -324,6 +324,31 @@ async function setupRollups(dataSource: DataSource) {
     const refreshPolicy = builder.up().getRefreshPolicy();
     if (refreshPolicy) {
       await dataSource.query(refreshPolicy);
+    try {
+      const inspectResults = await dataSource.query(builder.inspect().build());
+
+      if (!inspectResults[0].source_view_exists) {
+        console.warn(
+          `Source view ${rollupConfig.rollupOptions.sourceView} does not exist for rollup ${entity.tableName}`,
+        );
+        continue;
+      }
+
+      if (inspectResults[0].rollup_view_exists) {
+        console.log(`Rollup view ${entity.tableName} already exists, skipping creation`);
+        continue;
+      }
+
+      const sql = builder.up().build();
+      await dataSource.query(sql);
+
+      const refreshPolicy = builder.up().getRefreshPolicy();
+      if (refreshPolicy) {
+        await dataSource.query(refreshPolicy);
+      }
+    } catch (error) {
+      console.error(`Failed to setup rollup for ${entity.tableName}:`, error);
+      throw error;
     }
   }
 }

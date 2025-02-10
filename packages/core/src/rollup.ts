@@ -1,4 +1,4 @@
-import { RollupConfig } from '@timescaledb/schemas';
+import { RollupConfig, RollupRule } from '@timescaledb/schemas';
 import { escapeIdentifier, escapeLiteral } from '@timescaledb/utils';
 import { CandlestickBuilder, CandlestickMetadata } from './candlestick';
 
@@ -95,11 +95,11 @@ class RollupUpBuilder {
     `;
   }
 
-  public build(metadata: RollupMetadata): string {
+  public build(): string {
     const viewName = escapeIdentifier(this.config.rollupOptions.name);
     this.statements.push(
       `CREATE MATERIALIZED VIEW ${viewName}
-      WITH (timescaledb.continuous) AS ${this.buildRollupSelect(metadata)}`,
+      WITH (timescaledb.continuous) AS ${this.buildRollupSelect()}`,
     );
 
     return this.statements.join('\n');
