@@ -13,7 +13,7 @@ export enum AggregateType {
 export const AggregateTypeSchema = z.nativeEnum(AggregateType);
 
 export const AggregateColumnOptionsSchema = z.object({
-  type: z.enum(['count', 'count_distinct', 'sum', 'avg', 'min', 'max', 'bucket', 'candlestick']),
+  type: AggregateTypeSchema,
   column: z.string().optional(),
   column_alias: z.string().optional(),
   time_column: z.string().optional(),
