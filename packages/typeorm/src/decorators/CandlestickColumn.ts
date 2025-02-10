@@ -1,22 +1,16 @@
 import { ViewColumn } from 'typeorm';
+import { CandlestickColumnOptions } from '@timescaledb/schemas';
 
 export const CANDLESTICK_COLUMN_METADATA_KEY = Symbol('timescale:candlestick-column');
-
-export interface CandlestickColumnOptions {
-  time_column?: string;
-  price_column?: string;
-  volume_column?: string;
-  source_column?: string;
-}
 
 export interface CandlestickColumnMetadata extends CandlestickColumnOptions {
   propertyKey: string | symbol;
 }
 
-export function CandlestickColumn(options: CandlestickColumnOptions = {}) {
+export function CandlestickColumn(options: Partial<CandlestickColumnOptions>) {
   return function (target: any, propertyKey: string | symbol) {
     const metadata: CandlestickColumnMetadata = {
-      ...options,
+      ...(options as CandlestickColumnOptions),
       propertyKey,
     };
 

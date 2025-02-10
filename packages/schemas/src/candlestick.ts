@@ -35,11 +35,11 @@ export const GetCandlesticksOptionsSchema = z.object({
   where: WhereClauseSchema.optional(),
 });
 
-export const CandleStickColumnOptionsSchema = z.object({
+export const CandlestickColumnOptionsSchema = z.object({
   time_column: z.string(),
   price_column: z.string(),
   volume_column: z.string(),
   source_column: z.string(),
 });
 
-export type CandleStickColumnOptions = z.infer<typeof CandleStickColumnOptionsSchema>;
+export type CandlestickColumnOptions = z.infer<typeof CandlestickColumnOptionsSchema>;
