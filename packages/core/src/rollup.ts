@@ -4,12 +4,7 @@ import { CandlestickBuilder, CandlestickMetadata } from './candlestick';
 
 export interface RollupMetadata {
   candlestick?: CandlestickMetadata;
-  rollupRules: Array<{
-    sourceColumn: string;
-    targetColumn: string;
-    aggregateType?: string;
-    rollupFn?: string;
-  }>;
+  rollupRules: Array<RollupRule>;
 }
 
 class RollupInspectBuilder {
@@ -44,15 +39,7 @@ class RollupUpBuilder {
 
   constructor(private config: RollupConfig) {}
 
-  private buildRollupSelect(metadata: {
-    candlestick?: CandlestickMetadata;
-    rollupRules: Array<{
-      sourceColumn: string;
-      targetColumn: string;
-      aggregateType?: string;
-      rollupFn?: string;
-    }>;
-  }): string {
+  private buildRollupSelect(metadata: { candlestick?: CandlestickMetadata; rollupRules: Array<RollupRule> }): string {
     const selectStatements: string[] = [];
 
     const bucketInterval = escapeLiteral(this.config.rollupOptions.bucketInterval);
@@ -68,7 +55,7 @@ class RollupUpBuilder {
 
     const rollupSelects = metadata.rollupRules.map((rule) => {
       const sourceColumn = escapeIdentifier(rule.sourceColumn);
-      const targetColumn = escapeIdentifier(rule.targetColumn);
+      const targetColumn = escapeIdentifier(rule.targetColumn || 'bucket');
 
       if (rule.aggregateType) {
         switch (rule.aggregateType) {
@@ -95,11 +82,11 @@ class RollupUpBuilder {
     `;
   }
 
-  public build(): string {
+  public build(metadata: RollupMetadata): string {
     const viewName = escapeIdentifier(this.config.rollupOptions.name);
     this.statements.push(
       `CREATE MATERIALIZED VIEW ${viewName}
-      WITH (timescaledb.continuous) AS ${this.buildRollupSelect()}`,
+      WITH (timescaledb.continuous) AS ${this.buildRollupSelect(metadata)}`,
     );
 
     return this.statements.join('\n');

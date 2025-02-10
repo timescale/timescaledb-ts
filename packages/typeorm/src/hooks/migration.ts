@@ -272,7 +272,6 @@ async function setupRollups(dataSource: DataSource) {
     const rollupConfig = Reflect.getMetadata(ROLLUP_METADATA_KEY, entity.target) as RollupConfig;
     if (!rollupConfig) continue;
 
-    const { rollupConfig } = rollupMetadata;
     const builder = TimescaleDB.createRollup(rollupConfig);
 
     const inspectResults = await dataSource.query(builder.inspect().build());
@@ -314,16 +313,6 @@ async function setupRollups(dataSource: DataSource) {
       rollupFn: value.rollup_fn || 'rollup',
     }));
 
-    const sql = builder.up().build({
-      candlestick,
-      rollupRules,
-    });
-
-    await dataSource.query(sql);
-
-    const refreshPolicy = builder.up().getRefreshPolicy();
-    if (refreshPolicy) {
-      await dataSource.query(refreshPolicy);
     try {
       const inspectResults = await dataSource.query(builder.inspect().build());
 
@@ -339,7 +328,11 @@ async function setupRollups(dataSource: DataSource) {
         continue;
       }
 
-      const sql = builder.up().build();
+      const sql = builder.up().build({
+        candlestick,
+        rollupRules,
+      });
+
       await dataSource.query(sql);
 
       const refreshPolicy = builder.up().getRefreshPolicy();
@@ -349,6 +342,10 @@ async function setupRollups(dataSource: DataSource) {
     } catch (error) {
       console.error(`Failed to setup rollup for ${entity.tableName}:`, error);
       throw error;
+    }
+    const refreshPolicy = builder.up().getRefreshPolicy();
+    if (refreshPolicy) {
+      await dataSource.query(refreshPolicy);
     }
   }
 }
