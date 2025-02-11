@@ -66,7 +66,7 @@ Then you can use the `@Hypertable` decorator to define your hypertables:
 
 ```diff
 import { Entity, PrimaryColumn } from 'typeorm';
-+ import { Hypertable } from '@timescaledb/typeorm';
++ import { Hypertable, TimeColumn } from '@timescaledb/typeorm';
 
 + @Hypertable({ ... })
 @Entity('page_loads')
@@ -74,7 +74,7 @@ export class PageLoad {
   @PrimaryColumn({ type: 'varchar' })
   user_agent!: string;
 
-  @PrimaryColumn({ type: 'timestamp' })
+  @TimeColumn
   time!: Date;
 }
 ```
