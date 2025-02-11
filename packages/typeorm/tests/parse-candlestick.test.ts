@@ -77,19 +77,6 @@ describe('parseCandlestick', () => {
   it('should handle malformed input gracefully', () => {
     const input = 'invalid candlestick format';
 
-    const result = parseCandlestick(input);
-
-    expect(result).toEqual({
-      open: undefined,
-      high: undefined,
-      low: undefined,
-      close: undefined,
-      open_time: undefined,
-      high_time: undefined,
-      low_time: undefined,
-      close_time: undefined,
-      volume: undefined,
-      vwap: undefined,
-    });
+    expect(() => parseCandlestick(input)).toThrow();
   });
 });
