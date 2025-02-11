@@ -74,7 +74,7 @@ export class PageLoad {
   @PrimaryColumn({ type: 'varchar' })
   user_agent!: string;
 
-+  @TimeColumn
++  @TimeColumn()
   time!: Date;
 }
 ```
