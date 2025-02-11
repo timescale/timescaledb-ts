@@ -1,14 +1,15 @@
 import { DataSource, getMetadataArgsStorage } from 'typeorm';
-import { TimescaleDB } from '@timescaledb/core';
+import { TimescaleDB, generateTimestamptzCheck } from '@timescaledb/core';
 import { HYPERTABLE_METADATA_KEY } from '../decorators/Hypertable';
 import { timescaleMethods } from '../repository/TimescaleRepository';
 import { CONTINUOUS_AGGREGATE_METADATA_KEY, ContinuousAggregateMetadata } from '../decorators/ContinuousAggregate';
 import { AGGREGATE_COLUMN_METADATA_KEY } from '../decorators/AggregateColumn';
-import { AggregateColumnOptions, AggregateType, RollupConfig } from '@timescaledb/schemas';
+import { AggregateColumnOptions, AggregateType } from '@timescaledb/schemas';
 import { validateBucketColumn } from '../decorators/BucketColumn';
-import { ROLLUP_METADATA_KEY } from '../decorators/Rollup';
+import { ROLLUP_METADATA_KEY, RollupMetadata } from '../decorators/Rollup';
 import { CANDLESTICK_COLUMN_METADATA_KEY, CandlestickColumnMetadata } from '../decorators/CandlestickColumn';
 import { ROLLUP_COLUMN_METADATA_KEY } from '../decorators/RollupColumn';
+import { TIME_COLUMN_METADATA_KEY, TimeColumnMetadata } from '../decorators/TimeColumn';
 
 const originalRunMigrations = DataSource.prototype.runMigrations;
 const originalUndoLastMigration = DataSource.prototype.undoLastMigration;
@@ -121,6 +122,7 @@ async function setupTimescaleObjects(dataSource: DataSource) {
   }
 
   await setupTimescaleExtension(dataSource);
+  await setupTimeColumns(dataSource);
   await setupHypertables(dataSource);
   await setupContinuousAggregates(dataSource);
   await setupRollups(dataSource);
@@ -269,8 +271,10 @@ async function setupRollups(dataSource: DataSource) {
   const entities = dataSource.entityMetadatas;
 
   for (const entity of entities) {
-    const rollupConfig = Reflect.getMetadata(ROLLUP_METADATA_KEY, entity.target) as RollupConfig;
-    if (!rollupConfig) continue;
+    const rollupMetadata = Reflect.getMetadata(ROLLUP_METADATA_KEY, entity.target) as RollupMetadata;
+    if (!rollupMetadata) continue;
+
+    const { rollupConfig } = rollupMetadata;
 
     const builder = TimescaleDB.createRollup(rollupConfig);
 
@@ -364,6 +368,20 @@ async function removeRollups(dataSource: DataSource) {
 
     for (const sql of statements) {
       await dataSource.query(sql);
+    }
+  }
+}
+
+async function setupTimeColumns(dataSource: DataSource) {
+  const entities = dataSource.entityMetadatas;
+
+  for (const entity of entities) {
+    const timeColumnMetadata = Reflect.getMetadata(TIME_COLUMN_METADATA_KEY, entity.target) as TimeColumnMetadata;
+
+    if (timeColumnMetadata) {
+      const checkSql = generateTimestamptzCheck(entity.tableName, timeColumnMetadata.columnName);
+
+      await dataSource.query(checkSql);
     }
   }
 }

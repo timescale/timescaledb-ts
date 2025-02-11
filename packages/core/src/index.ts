@@ -48,4 +48,5 @@ export class TimescaleDB {
   }
 }
 
+export { generateTimestamptzCheck } from './time-column';
 export * from './errors';

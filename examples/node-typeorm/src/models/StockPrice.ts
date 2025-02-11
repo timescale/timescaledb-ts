@@ -1,11 +1,8 @@
 import { Entity, PrimaryColumn, Column } from 'typeorm';
-import { Hypertable } from '@timescaledb/typeorm';
+import { Hypertable, TimeColumn } from '@timescaledb/typeorm';
 
 @Entity('stock_prices')
 @Hypertable({
-  by_range: {
-    column_name: 'timestamp',
-  },
   compression: {
     compress: true,
     compress_orderby: 'timestamp',
@@ -19,7 +16,7 @@ export class StockPrice {
   @PrimaryColumn({ type: 'varchar' })
   symbol!: string;
 
-  @PrimaryColumn({ type: 'timestamp' })
+  @TimeColumn()
   timestamp!: Date;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })

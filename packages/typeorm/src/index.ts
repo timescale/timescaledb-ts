@@ -7,5 +7,6 @@ export { BucketColumn, BUCKET_COLUMN_METADATA_KEY } from './decorators/BucketCol
 export { RollupColumn, ROLLUP_COLUMN_METADATA_KEY } from './decorators/RollupColumn';
 export { Rollup, ROLLUP_METADATA_KEY } from './decorators/Rollup';
 export { CandlestickColumn, CANDLESTICK_COLUMN_METADATA_KEY } from './decorators/CandlestickColumn';
+export { TimeColumn, TIME_COLUMN_METADATA_KEY } from './decorators/TimeColumn';
 
 export * from './repository/TimescaleRepository';

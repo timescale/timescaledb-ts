@@ -12,7 +12,7 @@ class RollupInspectBuilder {
 
   public build(): string {
     if (!this.config || !this.config.rollupOptions) {
-      throw new Error('Invalid rollup configuration');
+      throw new Error('Invalid rollup configuration 1');
     }
 
     const sourceView = escapeLiteral(this.config.rollupOptions.sourceView);
@@ -93,15 +93,15 @@ class RollupUpBuilder {
   }
 
   public getRefreshPolicy(): string | null {
-    if (!this.config.continuousAggregateOptions.refresh_policy) return null;
+    if (!this.config.rollupOptions.refreshPolicy) return null;
 
-    const policy = this.config.continuousAggregateOptions.refresh_policy;
+    const policy = this.config.rollupOptions.refreshPolicy;
     const viewName = escapeLiteral(this.config.rollupOptions.name);
 
     return `SELECT add_continuous_aggregate_policy(${viewName},
-      start_offset => INTERVAL ${escapeLiteral(policy.start_offset)},
-      end_offset => INTERVAL ${escapeLiteral(policy.end_offset)},
-      schedule_interval => INTERVAL ${escapeLiteral(policy.schedule_interval)}
+      start_offset => INTERVAL ${escapeLiteral(policy.startOffset)},
+      end_offset => INTERVAL ${escapeLiteral(policy.endOffset)},
+      schedule_interval => INTERVAL ${escapeLiteral(policy.scheduleInterval)}
     );`;
   }
 }
@@ -126,7 +126,7 @@ class RollupDownBuilder {
 export class RollupBuilder {
   constructor(private config: RollupConfig) {
     if (!config || !config.rollupOptions) {
-      throw new Error('Invalid rollup configuration');
+      throw new Error('Invalid rollup configuration 2');
     }
   }
 
