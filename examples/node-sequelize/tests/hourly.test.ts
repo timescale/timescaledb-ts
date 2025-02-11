@@ -34,7 +34,7 @@ describe('GET /api/hourly', () => {
     await sequelize.query(`CALL refresh_continuous_aggregate('hourly_page_views', null, null);`);
 
     // Wait for refresh to complete
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 4000));
 
     const start = new Date(baseTime.getTime() - 4 * 3600000); // 4 hours ago
     const end = baseTime;
