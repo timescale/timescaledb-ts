@@ -4,7 +4,7 @@ exports[`ContinuousAggregate aggregate functions should create view with average
 "CREATE MATERIALIZED VIEW "avg_view" WITH (timescaledb.continuous) AS 
       SELECT
         time_bucket('1 hour', "time") as "bucket",
-        AVG("amount") as "avg_amount"
+      AVG("amount") as "avg_amount"
       FROM "source_table"
       GROUP BY "bucket"
      WITH NO DATA;"
@@ -14,8 +14,8 @@ exports[`ContinuousAggregate aggregate functions should create view with min/max
 "CREATE MATERIALIZED VIEW "minmax_view" WITH (timescaledb.continuous) AS 
       SELECT
         time_bucket('1 hour', "time") as "bucket",
-        MIN("amount") as "min_amount",
-        MAX("amount") as "max_amount"
+      MIN("amount") as "min_amount",
+      MAX("amount") as "max_amount"
       FROM "source_table"
       GROUP BY "bucket"
      WITH NO DATA;"
@@ -25,7 +25,7 @@ exports[`ContinuousAggregate aggregate functions should create view with sum agg
 "CREATE MATERIALIZED VIEW "sum_view" WITH (timescaledb.continuous) AS 
       SELECT
         time_bucket('1 hour', "time") as "bucket",
-        SUM("amount") as "total_amount"
+      SUM("amount") as "total_amount"
       FROM "source_table"
       GROUP BY "bucket"
      WITH NO DATA;"

@@ -1,5 +1,9 @@
 import { z } from 'zod';
-import { AggregateTypeSchema, CreateContinuousAggregateOptionsSchema } from './continuous-aggregate';
+import {
+  AggregateTypeSchema,
+  CreateContinuousAggregateOptionsSchema,
+  RefreshPolicySchema,
+} from './continuous-aggregate';
 
 export enum RollupFunctionType {
   Rollup = 'rollup',
@@ -26,13 +30,7 @@ export const RollupOptionsSchema = z.object({
     source: z.string(),
     target: z.string(),
   }),
-  refreshPolicy: z
-    .object({
-      startOffset: z.string(),
-      endOffset: z.string(),
-      scheduleInterval: z.string(),
-    })
-    .optional(),
+  refresh_policy: RefreshPolicySchema.optional(),
 });
 
 export type RollupOptions = z.infer<typeof RollupOptionsSchema>;

@@ -1,6 +1,7 @@
 import { PrimaryColumn } from 'typeorm';
 import { ContinuousAggregate, BucketColumn, CandlestickColumn } from '@timescaledb/typeorm';
 import { StockPrice } from '../StockPrice';
+import { Candlestick } from '@timescaledb/schemas';
 
 @ContinuousAggregate(StockPrice, {
   name: 'stock_candlesticks_1m',
@@ -25,5 +26,5 @@ export class StockPrice1M {
     price_column: 'price',
     volume_column: 'volume',
   })
-  candlestick!: any;
+  candlestick!: Candlestick;
 }

@@ -40,8 +40,11 @@ describe('Candlestick Continuous Aggregate Tests', () => {
 
     await Promise.all(testData.map((data) => repository.save(data)));
 
-    // Wait for continuous aggregate to refresh
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // Manually refresh the continuous aggregate
+    await AppDataSource.query(`CALL refresh_continuous_aggregate('stock_candlesticks_1m', null, null);`);
+
+    // Wait for refresh to complete
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Query the continuous aggregate directly
     const caggRepository = AppDataSource.getRepository(StockPrice1M);
@@ -106,8 +109,11 @@ describe('Candlestick Continuous Aggregate Tests', () => {
 
     await Promise.all(testData.map((data) => repository.save(data)));
 
-    // Wait for continuous aggregate to refresh
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // Manually refresh the continuous aggregate
+    await AppDataSource.query(`CALL refresh_continuous_aggregate('stock_candlesticks_1m', null, null);`);
+
+    // Wait for refresh to complete
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const response = await request()
       .get('/api/candlestick/1m')
@@ -122,9 +128,9 @@ describe('Candlestick Continuous Aggregate Tests', () => {
 
     // Verify first minute
     const firstMinute = response.body[0];
-    expect(new Date(firstMinute.bucket_time).getTime()).toBe(baseTime.getTime());
-    expect(Number(firstMinute.open)).toBe(102000);
-    expect(Number(firstMinute.close)).toBe(103000);
+    expect(new Date(firstMinute.bucket_time).getTime()).toBeCloseTo(baseTime.getTime());
+    expect(Number(firstMinute.open)).toBeCloseTo(102000);
+    expect(Number(firstMinute.close)).toBeCloseTo(103000);
 
     // Verify third minute
     const thirdMinute = response.body[1];
@@ -146,8 +152,9 @@ describe('Candlestick Continuous Aggregate Tests', () => {
       volume: 1.5,
     });
 
-    // Wait for continuous aggregate to refresh
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // Manually refresh after first insert
+    await AppDataSource.query(`CALL refresh_continuous_aggregate('stock_candlesticks_1m', null, null);`);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Add more data to the same minute
     await repository.save({
@@ -157,8 +164,9 @@ describe('Candlestick Continuous Aggregate Tests', () => {
       volume: 1.8,
     });
 
-    // Wait for continuous aggregate to refresh again
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // Manually refresh after second insert
+    await AppDataSource.query(`CALL refresh_continuous_aggregate('stock_candlesticks_1m', null, null);`);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const response = await request()
       .get('/api/candlestick/1m')

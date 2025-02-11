@@ -1,6 +1,7 @@
 import { PrimaryColumn } from 'typeorm';
 import { BucketColumn, CandlestickColumn, Rollup } from '@timescaledb/typeorm';
 import { StockPrice1M } from './StockPrice1M';
+import { Candlestick } from '@timescaledb/schemas';
 
 @Rollup(StockPrice1M, {
   name: 'stock_candlesticks_1h',
@@ -23,5 +24,5 @@ export class StockPrice1H {
   @CandlestickColumn({
     source_column: 'candlestick',
   })
-  candlestick!: any;
+  candlestick!: Candlestick;
 }

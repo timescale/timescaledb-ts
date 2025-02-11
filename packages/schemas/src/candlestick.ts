@@ -27,6 +27,8 @@ export const CandlesticksResultSchema = z.object({
 
 export type CandlesticksResult = z.infer<typeof CandlesticksResultSchema>;
 
+export type Candlestick = Omit<CandlesticksResult, 'bucket_time'>;
+
 export type GetCandlesticksOptions = z.infer<typeof GetCandlesticksOptionsSchema>;
 
 export const GetCandlesticksOptionsSchema = z.object({

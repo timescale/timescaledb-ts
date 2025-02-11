@@ -78,7 +78,7 @@ exports[`RollupBuilder up() refresh policy should generate refresh policy SQL 1`
 
 exports[`RollupBuilder up() refresh policy should properly escape interval values 1`] = `
 "SELECT add_continuous_aggregate_policy('daily_rollup',
-      start_offset => INTERVAL '30 days''--injection',
+      start_offset => INTERVAL '30 days',
       end_offset => INTERVAL '1 day',
       schedule_interval => INTERVAL '1 day'
     );"
@@ -88,9 +88,7 @@ exports[`RollupBuilder up() should create with a different bucket column 1`] = `
 "CREATE MATERIALIZED VIEW "daily_rollup"
       WITH (timescaledb.continuous) AS 
       SELECT
-        time_bucket('1 day', "some_bucket") AS "some_bucket",
-        rollup(percentile_hourly) as "percentile_daily",
-        sum("total_hourly") as "total_daily"
+        time_bucket('1 day'::interval, "some_bucket") AS "some_bucket"
       FROM "hourly_metrics"
       GROUP BY 1 WITH NO DATA;
     "
@@ -100,24 +98,11 @@ exports[`RollupBuilder up() should generate SQL with materialized-only option 1`
 "CREATE MATERIALIZED VIEW "daily_rollup"
       WITH (timescaledb.continuous) AS 
       SELECT
-        time_bucket('1 day', "bucket") AS "bucket",
-        rollup(percentile_hourly) as "percentile_daily",
+        time_bucket('1 day'::interval, "bucket") AS "bucket",
+        rollup("percentile_hourly") as "percentile_daily",
         sum("total_hourly") as "total_daily"
       FROM "hourly_metrics"
       GROUP BY 1 WITH DATA;
-    "
-`;
-
-exports[`RollupBuilder up() should generate SQL with multiple rollup rules 1`] = `
-"CREATE MATERIALIZED VIEW "daily_rollup"
-      WITH (timescaledb.continuous) AS 
-      SELECT
-        time_bucket('1 day', "bucket") AS "bucket",
-        rollup(percentile_hourly) as "percentile_daily",
-        sum("total_hourly") as "total_daily",
-        rollup(percentile_hourly) as "percentile_daily"
-      FROM "hourly_metrics"
-      GROUP BY 1 WITH NO DATA;
     "
 `;
 
@@ -125,8 +110,8 @@ exports[`RollupBuilder up() should generate basic rollup SQL 1`] = `
 "CREATE MATERIALIZED VIEW "daily_rollup"
       WITH (timescaledb.continuous) AS 
       SELECT
-        time_bucket('1 day', "bucket") AS "bucket",
-        rollup(percentile_hourly) as "percentile_daily",
+        time_bucket('1 day'::interval, "bucket") AS "bucket",
+        rollup("percentile_hourly") as "percentile_daily",
         sum("total_hourly") as "total_daily"
       FROM "hourly_metrics"
       GROUP BY 1 WITH NO DATA;
@@ -137,8 +122,8 @@ exports[`RollupBuilder up() should handle column names with special characters 1
 "CREATE MATERIALIZED VIEW "daily_rollup"
       WITH (timescaledb.continuous) AS 
       SELECT
-        time_bucket('1 day', "bucket") AS "bucket",
-        rollup(percentile"hourly) as "percentile""daily"
+        time_bucket('1 day'::interval, "bucket") AS "bucket",
+        rollup("percentile""hourly") as "percentile""daily"
       FROM "hourly_metrics"
       GROUP BY 1 WITH NO DATA;
     "

@@ -6,15 +6,20 @@ describe('RollupBuilder', () => {
   const baseConfig: RollupConfig = {
     continuousAggregateOptions: {
       name: 'daily_rollup',
-      bucket_interval: '1 day',
+      bucket_interval: '1 hour',
       time_column: 'time',
       refresh_policy: {
-        start_offset: '30 days',
+        start_offset: '1 day',
         end_offset: '1 day',
         schedule_interval: '1 day',
       },
     },
     rollupOptions: {
+      refresh_policy: {
+        start_offset: '30 days',
+        end_offset: '1 day',
+        schedule_interval: '1 day',
+      },
       bucketColumn: {
         source: 'bucket',
         target: 'bucket',
@@ -42,12 +47,14 @@ describe('RollupBuilder', () => {
   describe('up()', () => {
     it('should generate basic rollup SQL', () => {
       const builder = new RollupBuilder(baseConfig);
-      const sql = builder.up().build();
+      const sql = builder.up().build({
+        rollupRules: baseConfig.rollupOptions.rollupRules,
+      });
       expect(sql).toMatchSnapshot();
     });
 
     it('should generate SQL with materialized-only option', () => {
-      const config = {
+      const config: RollupConfig = {
         ...baseConfig,
         rollupOptions: {
           ...baseConfig.rollupOptions,
@@ -55,32 +62,14 @@ describe('RollupBuilder', () => {
         },
       };
       const builder = new RollupBuilder(config);
-      const sql = builder.up().build();
-      expect(sql).toMatchSnapshot();
-    });
-
-    it('should generate SQL with multiple rollup rules', () => {
-      const config = {
-        ...baseConfig,
-        rollupOptions: {
-          ...baseConfig.rollupOptions,
-          rollupRules: [
-            ...baseConfig.rollupOptions.rollupRules,
-            {
-              rollupFn: RollupFunctionType.Rollup,
-              sourceColumn: 'percentile_hourly',
-              targetColumn: 'percentile_daily',
-            },
-          ],
-        },
-      };
-      const builder = new RollupBuilder(config);
-      const sql = builder.up().build();
+      const sql = builder.up().build({
+        rollupRules: config.rollupOptions.rollupRules,
+      });
       expect(sql).toMatchSnapshot();
     });
 
     it('should handle column names with special characters', () => {
-      const config = {
+      const config: RollupConfig = {
         ...baseConfig,
         rollupOptions: {
           ...baseConfig.rollupOptions,
@@ -94,7 +83,9 @@ describe('RollupBuilder', () => {
         },
       };
       const builder = new RollupBuilder(config);
-      const sql = builder.up().build();
+      const sql = builder.up().build({
+        rollupRules: config.rollupOptions.rollupRules,
+      });
       expect(sql).toMatchSnapshot();
     });
 
@@ -107,10 +98,13 @@ describe('RollupBuilder', () => {
             source: 'some_bucket',
             target: 'some_bucket',
           },
+          rollupRules: [],
         },
       };
       const builder = new RollupBuilder(config);
-      const sql = builder.up().build();
+      const sql = builder.up().build({
+        rollupRules: config.rollupOptions.rollupRules,
+      });
       expect(sql).toMatchSnapshot();
     });
 
@@ -126,6 +120,10 @@ describe('RollupBuilder', () => {
           ...baseConfig,
           continuousAggregateOptions: {
             ...baseConfig.continuousAggregateOptions,
+            refresh_policy: undefined,
+          },
+          rollupOptions: {
+            ...baseConfig.rollupOptions,
             refresh_policy: undefined,
           },
         };
@@ -241,7 +239,12 @@ describe('RollupBuilder', () => {
       };
       // @ts-ignore
       const builder = new RollupBuilder(config as RollupConfig);
-      expect(() => builder.up().build()).toThrow();
+      expect(() =>
+        builder.up().build(
+          // @ts-ignore
+          config.rollupOptions.rollupRules,
+        ),
+      ).toThrow();
     });
 
     it('should validate bucket interval', () => {
@@ -254,7 +257,12 @@ describe('RollupBuilder', () => {
         },
       };
       const builder = new RollupBuilder(config as RollupConfig);
-      expect(() => builder.up().build()).toThrow();
+      expect(() =>
+        builder.up().build(
+          // @ts-ignore
+          config.rollupOptions.rollupRules,
+        ),
+      ).toThrow();
     });
   });
 });

@@ -1,5 +1,6 @@
 import { ViewColumn } from 'typeorm';
 import { CandlestickColumnOptions } from '@timescaledb/schemas';
+import { parseCandlestick } from '../utils/parse-candlestick';
 
 export const CANDLESTICK_COLUMN_METADATA_KEY = Symbol('timescale:candlestick-column');
 
@@ -16,8 +17,40 @@ export function CandlestickColumn(options: Partial<CandlestickColumnOptions>) {
 
     ViewColumn()(target, propertyKey);
 
-    // Store metadata for use during migrations
     Reflect.defineMetadata(CANDLESTICK_COLUMN_METADATA_KEY, metadata, target.constructor);
+
+    const backingFieldKey = `_${String(propertyKey)}`;
+
+    Object.defineProperty(target, propertyKey, {
+      get: function () {
+        const value = this[backingFieldKey];
+        if (typeof value === 'string') {
+          return parseCandlestick(value);
+        }
+        return value;
+      },
+      set: function (value: any) {
+        this[backingFieldKey] = value;
+      },
+      enumerable: true,
+      configurable: true,
+    });
+
+    const originalToJSON = target.constructor.prototype.toJSON;
+    if (!originalToJSON) {
+      target.constructor.prototype.toJSON = function () {
+        const json: any = {};
+        for (const key in this) {
+          if (key.startsWith('_')) {
+            const publicKey = key.substring(1);
+            json[publicKey] = this[key];
+          } else {
+            json[key] = this[key];
+          }
+        }
+        return json;
+      };
+    }
 
     return target;
   };
