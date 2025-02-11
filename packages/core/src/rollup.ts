@@ -98,11 +98,12 @@ class RollupUpBuilder {
     `;
   }
 
-  public build(metadata: RollupMetadata): string {
+  public build(metadata?: RollupMetadata): string {
+    const _metadata = metadata || ({ rollupRules: this.config.rollupOptions.rollupRules || [] } as RollupMetadata);
     const viewName = escapeIdentifier(this.config.rollupOptions.name);
     this.statements.push(
       `CREATE MATERIALIZED VIEW ${viewName}
-      WITH (timescaledb.continuous) AS ${this.buildRollupSelect(metadata)}`,
+      WITH (timescaledb.continuous) AS ${this.buildRollupSelect(_metadata)}`,
     );
 
     return this.statements.join('\n');
