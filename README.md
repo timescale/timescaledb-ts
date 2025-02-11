@@ -22,6 +22,7 @@ If you are looking to setup this project locally, you can follow the instruction
 
 - [Getting Started](./docs/guides/getting-started.md) - A guide to getting started with TimescaleDB and this library.
 - [Working with Energy Data](./docs/guides/energy-data.md) - A guide to working with energy data in TimescaleDB.
+- [Working with Candlesticks](./docs/guides/candlesticks.md) - A guide to working with candlestick data in TimescaleDB.
 
 ## Feature Compatibility
 
