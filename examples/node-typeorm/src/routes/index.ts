@@ -180,6 +180,8 @@ router.get('/candlestick/1h', async (req, res) => {
       query.andWhere('symbol = :symbol', { symbol });
     }
 
+    query.orderBy('bucket', 'ASC');
+
     const candlesticks = await query.getMany();
 
     const formattedData = candlesticks.map((c) => ({

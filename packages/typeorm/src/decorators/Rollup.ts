@@ -55,6 +55,20 @@ export function Rollup<T extends { new (...args: any[]): any }>(sourceModel: Fun
       throw new Error('Source model is not a TypeORM entity');
     }
 
+    const sourcePrimaryColumns = getMetadataArgsStorage()
+      .columns.filter((col) => col.target === sourceModel && col.options?.primary)
+      .map((col) => col.propertyName || col.options?.name)
+      .filter((name): name is string => name !== undefined);
+
+    const targetPrimaryColumns = getMetadataArgsStorage()
+      .columns.filter((col) => col.target === target && col.options?.primary)
+      .map((col) => col.propertyName || col.options?.name)
+      .filter((name): name is string => name !== undefined);
+
+    const groupColumns = Array.from(
+      new Set([...sourcePrimaryColumns, ...targetPrimaryColumns, ...(options?.group_columns || [])]),
+    );
+
     const targetBucketMetadata = validateBucketColumn(target);
     const sourceBucketMetadata = validateSourceBucketColumn(sourceModel, {
       source_column: targetBucketMetadata.source_column,
@@ -67,6 +81,7 @@ export function Rollup<T extends { new (...args: any[]): any }>(sourceModel: Fun
         ...options,
         name: options.name,
         time_column: sourceBucketMetadata.source_column,
+        group_columns: groupColumns,
       },
       rollupOptions: {
         sourceView: sourceMetadata.name!,
