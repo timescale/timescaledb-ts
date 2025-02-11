@@ -24,11 +24,17 @@ export function ContinuousAggregate<T extends { new (...args: any[]): any }>(
       throw new Error('Source model is not a TypeORM entity');
     }
 
+    const primaryColumns = getMetadataArgsStorage()
+      .columns.filter((col) => col.target === sourceModel && col.options?.primary)
+      .map((col) => col.options.name || col.propertyName)
+      .filter((colName: string | undefined) => colName !== bucketMetadata.source_column);
+
     const metadata: ContinuousAggregateMetadata = {
       sourceModel,
       options: {
         ...options,
         time_column: bucketMetadata.source_column,
+        group_columns: primaryColumns,
       },
       bucketColumn: bucketMetadata.propertyKey,
     };

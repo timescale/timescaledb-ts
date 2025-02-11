@@ -35,6 +35,7 @@ export const CreateContinuousAggregateOptionsSchema = z
     time_column: z.string().optional(),
     refresh_policy: RefreshPolicySchema.optional(),
     aggregates: z.record(AggregateColumnOptionsSchema).optional(),
+    group_columns: z.array(z.string()).optional(),
   })
   .strict();
 
