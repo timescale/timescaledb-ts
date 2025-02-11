@@ -5,19 +5,15 @@ export function parseCandlestick(candlestickStr: string): Candlestick {
     throw new Error('Invalid candlestick string');
   }
 
-  // Updated regex patterns to handle decimals
   const valuePattern = /val:(\d+(?:\.\d+)?)/g;
   const timePattern = /ts:"([^"]+)"/g;
   const volumePattern = /vol:(\d+(?:\.\d+)?)/;
   const vwapPattern = /vwap:(\d+(?:\.\d+)?)/;
 
-  // Extract all values
   const values = [...candlestickStr.matchAll(valuePattern)].map((match) => parseFloat(match[1]));
 
-  // Extract all timestamps
   const timestamps = [...candlestickStr.matchAll(timePattern)].map((match) => new Date(match[1]));
 
-  // Extract volume info
   const volumeMatch = candlestickStr.match(volumePattern);
   const vwapMatch = candlestickStr.match(vwapPattern);
 
