@@ -4,7 +4,7 @@ import { WhereClauseSchema } from './where';
 
 export const CandlestickAggregateOptionsSchema = z.object({
   price_column: z.string(),
-  time_column: z.string(),
+  time_column: z.string().optional(),
   volume_column: z.string().optional(),
   bucket_interval: z.string().optional().default('1 hour'),
 });
@@ -38,7 +38,7 @@ export const GetCandlesticksOptionsSchema = z.object({
 });
 
 export const CandlestickColumnOptionsSchema = z.object({
-  time_column: z.string(),
+  time_column: z.string().optional(),
   price_column: z.string(),
   volume_column: z.string(),
   source_column: z.string(),

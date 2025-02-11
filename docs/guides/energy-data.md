@@ -8,13 +8,10 @@ First, let's set up our energy metrics model:
 
 ```typescript
 import { Entity, PrimaryColumn, Column } from 'typeorm';
-import { Hypertable } from '@timescaledb/typeorm';
+import { Hypertable, TimeColumn } from '@timescaledb/typeorm';
 
 @Entity('energy_metrics')
 @Hypertable({
-  by_range: {
-    column_name: 'timestamp',
-  },
   compression: {
     compress: true,
     compress_orderby: 'timestamp',
@@ -28,7 +25,7 @@ export class EnergyMetric {
   @PrimaryColumn({ type: 'varchar' })
   meter_id!: string;
 
-  @PrimaryColumn({ type: 'timestamp' })
+  @TimeColumn()
   timestamp!: Date;
 
   @Column({ type: 'float' })

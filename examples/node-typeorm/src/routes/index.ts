@@ -118,7 +118,6 @@ router.get('/candlestick', async (req, res) => {
     const candlesticks = await repository.getCandlesticks({
       timeRange: { start, end },
       config: {
-        time_column: 'timestamp',
         price_column: 'price',
         volume_column: 'volume',
         bucket_interval: '1 hour',

@@ -28,7 +28,7 @@ export class CandlestickAggregateBuilder {
 
   public build({ where, range }: { where?: WhereClause; range?: TimeRange } = {}): { sql: string; params: any[] } {
     const tableName = escapeIdentifier(this.tableName);
-    const timeColumn = escapeIdentifier(this.options.time_column);
+    const timeColumn = escapeIdentifier(this.options.time_column!);
     const priceColumn = escapeIdentifier(this.options.price_column);
     const volumeColumn = this.options.volume_column ? escapeIdentifier(this.options.volume_column) : null;
     const interval = '$1::interval';

@@ -96,13 +96,10 @@ Create `src/models/CryptoPrice.ts`:
 
 ```typescript
 import { Entity, PrimaryColumn, Column } from 'typeorm';
-import { Hypertable } from '@timescaledb/typeorm';
+import { Hypertable, TimeColumn } from '@timescaledb/typeorm';
 
 @Entity('crypto_prices')
 @Hypertable({
-  by_range: {
-    column_name: 'timestamp',
-  },
   compression: {
     compress: true,
     compress_orderby: 'timestamp',
@@ -116,7 +113,7 @@ export class CryptoPrice {
   @PrimaryColumn({ type: 'varchar' })
   symbol!: string;
 
-  @PrimaryColumn({ type: 'timestamp' })
+  @TimeColumn()
   timestamp!: Date;
 
   @Column({ type: 'decimal', precision: 18, scale: 8 })
@@ -190,7 +187,6 @@ async function analyzeBTC() {
       end: new Date('2025-01-02T00:00:00Z'),
     },
     config: {
-      time_column: 'timestamp',
       price_column: 'price',
       volume_column: 'volume',
       bucket_interval: '1 hour',

@@ -22,13 +22,10 @@ Usage:
 
 ```typescript
 import { Entity, PrimaryColumn } from 'typeorm';
-import { Hypertable } from '@timescaledb/typeorm';
+import { Hypertable, TimeColumn } from '@timescaledb/typeorm';
 
 @Entity('page_loads')
 @Hypertable({
-  by_range: {
-    column_name: 'time',
-  },
   compression: {
     compress: true,
     compress_orderby: 'time',
@@ -42,7 +39,7 @@ export class PageLoad {
   @PrimaryColumn({ name: 'user_agent', type: 'varchar' })
   userAgent!: string;
 
-  @PrimaryColumn({ type: 'timestamp' })
+  @TimeColumn()
   time!: Date;
 }
 ```
@@ -65,7 +62,6 @@ import { PageLoad } from './models/PageLoad';
 
 const repository = AppDataSource.getRepository(PageLoad);
 
-// Basic time bucket query
 const stats = await repository.getTimeBucket({
   timeRange: {
     start,
@@ -78,26 +74,8 @@ const stats = await repository.getTimeBucket({
       { type: 'distinct_count', column: 'user_agent', alias: 'unique_users' },
     ],
   },
-});
-
-// With where clause filtering
-const filteredStats = await repository.getTimeBucket({
-  timeRange: {
-    start,
-    end,
-  },
-  bucket: {
-    interval: '1 hour',
-    metrics: [
-      { type: 'count', alias: 'count' },
-      { type: 'distinct_count', column: 'user_agent', alias: 'unique_users' },
-    ],
-  },
   where: {
-    user_agent: 'Mozilla/5.0', // Simple equality
-    session_duration: { '>': 3600 }, // Comparison operator
-    status_code: { IN: [200, 201, 204] }, // IN clause
-    country: { 'NOT IN': ['US', 'CA'] }, // NOT IN clause
+    user_agent: 'Mozilla/5.0',
   },
 });
 
@@ -289,19 +267,15 @@ See:
 
 ```typescript
 import { Entity } from 'typeorm';
-import { Hypertable } from '@timescaledb/typeorm';
+import { Hypertable, TimeColumn } from '@timescaledb/typeorm';
 
 @Entity('stock_prices')
-@Hypertable({
-  by_range: {
-    column_name: 'timestamp',
-  },
-})
+@Hypertable()
 export class StockPrice {
   @PrimaryColumn({ type: 'varchar' })
   tickerSymbol: string;
 
-  @PrimaryColumn({ type: 'timestamp' })
+  @TimeColumn()
   timestamp: Date;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
@@ -319,22 +293,7 @@ Use the appended `getCandlesticks` method on the repository to query candlestick
 ```typescript
 const repository = AppDataSource.getRepository(StockPrice);
 
-// Basic candlestick query
 const candlesticks = await repository.getCandlesticks({
-  timeRange: {
-    start: new Date('2025-01-01'),
-    end: new Date('2025-01-02'),
-  },
-  config: {
-    time_column: 'timestamp',
-    price_column: 'price',
-    volume_column: 'volume', // optional
-    bucket_interval: '1 hour', // defaults to '1 hour'
-  },
-});
-
-// With where clause filtering
-const filteredCandlesticks = await repository.getCandlesticks({
   timeRange: {
     start: new Date('2025-01-01'),
     end: new Date('2025-01-02'),
@@ -346,10 +305,7 @@ const filteredCandlesticks = await repository.getCandlesticks({
     bucket_interval: '1 hour',
   },
   where: {
-    symbol: 'AAPL', // Simple equality
-    volume: { '>': 1000000 }, // Minimum volume
-    exchange: { IN: ['NYSE', 'NASDAQ'] }, // Multiple exchanges
-    sector: { 'NOT IN': ['CRYPTO', 'OTC'] }, // Exclude sectors
+    symbol: 'AAPL',
   },
 });
 
