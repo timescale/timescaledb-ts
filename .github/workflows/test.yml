@@ -60,22 +60,22 @@ jobs:
       - name: Run TypeORM Lib Tests
         run: pnpm run --filter @timescaledb/typeorm test
 
-      - name: Run Sequelize Migration
-        env:
-          DATABASE_URL: postgres://postgres:password@localhost:5432/sequelize
-        run: pnpm run --filter @timescaledb/example-node-sequelize migrate
-
       - name: Run TypeORM Migration
         env:
           DATABASE_URL: postgres://postgres:password@localhost:5432/typeorm
         run: pnpm run --filter @timescaledb/example-node-typeorm migrate
 
-      - name: Run Sequelize Example Tests
-        env:
-          DATABASE_URL: postgres://postgres:password@localhost:5432/sequelize
-        run: pnpm run --filter @timescaledb/example-node-sequelize test
-
       - name: Run TypeORM Example Tests
         env:
           DATABASE_URL: postgres://postgres:password@localhost:5432/typeorm
         run: pnpm run --filter @timescaledb/example-node-typeorm test
+
+      - name: Run Sequelize Migration
+        env:
+          DATABASE_URL: postgres://postgres:password@localhost:5432/sequelize
+        run: pnpm run --filter @timescaledb/example-node-sequelize migrate
+
+      - name: Run Sequelize Example Tests
+        env:
+          DATABASE_URL: postgres://postgres:password@localhost:5432/sequelize
+        run: pnpm run --filter @timescaledb/example-node-sequelize test
