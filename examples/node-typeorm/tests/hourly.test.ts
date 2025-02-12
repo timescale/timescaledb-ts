@@ -8,6 +8,8 @@ describe('GET /api/hourly', () => {
   beforeEach(async () => {
     const repository = AppDataSource.getRepository(PageLoad);
     await repository.clear();
+
+    await AppDataSource.query(`CALL refresh_continuous_aggregate('hourly_page_views', null, null);`);
   });
 
   afterAll(async () => {

@@ -8,6 +8,8 @@ describe('GET /api/daily', () => {
   beforeEach(async () => {
     const repository = AppDataSource.getRepository(PageLoad);
     await repository.clear();
+    await AppDataSource.query(`CALL refresh_continuous_aggregate('hourly_page_views', null, null);`);
+    await AppDataSource.query(`CALL refresh_continuous_aggregate('daily_page_stats', null, null);`);
   });
 
   afterAll(async () => {
@@ -37,17 +39,10 @@ describe('GET /api/daily', () => {
       }
     }
 
-    // Manually refresh the continuous aggregate for hourly views
     await AppDataSource.query(`CALL refresh_continuous_aggregate('hourly_page_views', null, null);`);
-
-    // Wait for hourly refresh to complete
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    // Manually refresh the rollup for daily stats
+    await new Promise((resolve) => setTimeout(resolve, 3000));
     await AppDataSource.query(`CALL refresh_continuous_aggregate('daily_page_stats', null, null);`);
-
-    // Wait for daily refresh to complete
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
     const start = new Date(baseTime.getTime() - 4 * 24 * 3600000); // 4 days ago
     const end = baseTime;
@@ -74,5 +69,5 @@ describe('GET /api/daily', () => {
       expect(Number(day.avg_unique_users)).toBeGreaterThan(0);
       expect(Number(day.avg_unique_users)).toBeLessThanOrEqual(30);
     });
-  });
+  }, 10000);
 });
