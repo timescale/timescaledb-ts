@@ -218,13 +218,11 @@ async function setupContinuousAggregates(dataSource: DataSource) {
     // @ts-ignore
     const bucketMetadata = validateBucketColumn(entity.target);
 
-    // Get candlestick metadata
     const candlestickMetadata = Reflect.getMetadata(
       CANDLESTICK_COLUMN_METADATA_KEY,
       entity.target,
     ) as CandlestickColumnMetadata;
 
-    // Convert candlestick to aggregate options if present
     if (candlestickMetadata) {
       aggregateColumns[candlestickMetadata.propertyKey.toString()] = {
         type: 'candlestick',
@@ -292,7 +290,6 @@ async function setupRollups(dataSource: DataSource) {
       continue;
     }
 
-    // Get candlestick metadata
     const candlestickMetadata = Reflect.getMetadata(
       CANDLESTICK_COLUMN_METADATA_KEY,
       entity.target,
@@ -308,7 +305,6 @@ async function setupRollups(dataSource: DataSource) {
         }
       : undefined;
 
-    // Get rollup columns metadata
     const rollupColumns = Reflect.getMetadata(ROLLUP_COLUMN_METADATA_KEY, entity.target) || {};
     const rollupRules = Object.entries(rollupColumns).map(([, value]: [string, any]) => ({
       sourceColumn: value.source_column,

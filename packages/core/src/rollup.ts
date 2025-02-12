@@ -42,20 +42,17 @@ class RollupUpBuilder {
   private buildRollupSelect(metadata: { candlestick?: CandlestickMetadata; rollupRules: Array<RollupRule> }): string {
     const selectStatements: string[] = [];
 
-    // Add bucket
     const bucketInterval = escapeLiteral(this.config.rollupOptions.bucketInterval);
     const bucketColumnSource = escapeIdentifier(this.config.rollupOptions.bucketColumn.source || 'bucket');
     const bucketColumnTarget = escapeIdentifier(this.config.rollupOptions.bucketColumn.target || 'bucket');
     selectStatements.push(`time_bucket(${bucketInterval}::interval, ${bucketColumnSource}) AS ${bucketColumnTarget}`);
 
-    // Add all primary key/group columns from source
     const groupColumns = this.config.continuousAggregateOptions.group_columns || [];
     for (const column of groupColumns) {
       const escapedColumn = escapeIdentifier(column);
       selectStatements.push(`${escapedColumn} as ${escapedColumn}`);
     }
 
-    // Add candlestick if present
     if (metadata.candlestick) {
       const rollupSql = CandlestickBuilder.generateSQL(metadata.candlestick, true);
       if (rollupSql) {
@@ -63,7 +60,6 @@ class RollupUpBuilder {
       }
     }
 
-    // Add other rollup metrics
     const rollupSelects = metadata.rollupRules.map((rule) => {
       const sourceColumn = escapeIdentifier(rule.sourceColumn);
       const targetColumn = escapeIdentifier(rule.targetColumn || 'bucket');
@@ -86,7 +82,6 @@ class RollupUpBuilder {
 
     const sourceView = escapeIdentifier(this.config.rollupOptions.sourceView);
 
-    // Build GROUP BY with bucket and all group columns
     const groupByCols = ['1', ...groupColumns.map((c) => escapeIdentifier(c))];
     const groupByClause = groupByCols.join(', ');
 

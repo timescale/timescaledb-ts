@@ -121,7 +121,6 @@ class ContinuousAggregateUpBuilder {
       hasGroupByColumns.push(columnName);
     });
 
-    // Add other aggregates
     Object.entries(this.options.aggregates || []).forEach(([, config]) => {
       if (config.type === AggregateType.Bucket) return;
       aggregates.push(this.generateAggregate(config));
