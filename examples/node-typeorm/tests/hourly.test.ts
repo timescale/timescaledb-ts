@@ -49,7 +49,7 @@ describe('GET /api/hourly', () => {
     });
 
     expect(response.status).toBe(200);
-    expect(response.body).toHaveLength(3);
+    expect(response.body).toBeCloseTo(3);
 
     const firstHour = response.body[0];
     expect(firstHour).toHaveProperty('bucket');

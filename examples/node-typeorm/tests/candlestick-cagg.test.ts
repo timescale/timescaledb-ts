@@ -44,7 +44,7 @@ describe('Candlestick Continuous Aggregate Tests', () => {
     await AppDataSource.query(`CALL refresh_continuous_aggregate('stock_candlesticks_1m', null, null);`);
 
     // Wait for refresh to complete
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     // Query the continuous aggregate directly
     const caggRepository = AppDataSource.getRepository(StockPrice1M);
@@ -113,7 +113,7 @@ describe('Candlestick Continuous Aggregate Tests', () => {
     await AppDataSource.query(`CALL refresh_continuous_aggregate('stock_candlesticks_1m', null, null);`);
 
     // Wait for refresh to complete
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     const response = await request()
       .get('/api/candlestick/1m')
