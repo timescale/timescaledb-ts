@@ -10,7 +10,6 @@ process.env.PORT = '4100';
 beforeAll(async () => {
   try {
     await AppDataSource.initialize();
-    await AppDataSource.runMigrations();
   } catch (error) {
     console.error('Test setup failed:', error);
     throw error;
