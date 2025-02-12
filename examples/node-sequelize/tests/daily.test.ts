@@ -56,7 +56,7 @@ describe('GET /api/daily', () => {
     });
 
     expect(response.status).toBe(200);
-    expect(response.body).toBeCloseTo(3);
+    expect(response.body.length).toBeCloseTo(3);
 
     const firstDay = response.body[0];
     expect(firstDay).toHaveProperty('bucket');
