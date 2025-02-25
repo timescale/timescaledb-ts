@@ -1,5 +1,6 @@
-import { Entity, PrimaryColumn } from 'typeorm';
+import { Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Hypertable, TimeColumn } from '@timescaledb/typeorm';
+import { Page } from './Page';
 
 @Entity('page_loads')
 @Hypertable({
@@ -18,4 +19,7 @@ export class PageLoad {
 
   @TimeColumn()
   time!: Date;
+
+  @ManyToOne(() => Page, (page) => page, { nullable: true })
+  page?: Page;
 }
