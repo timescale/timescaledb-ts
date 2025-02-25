@@ -1,4 +1,4 @@
-import { DataSource, getMetadataArgsStorage } from 'typeorm';
+import { DataSource, EntityMetadata, getMetadataArgsStorage } from 'typeorm';
 import { TimescaleDB, generateTimestamptzCheck } from '@timescaledb/core';
 import { HYPERTABLE_METADATA_KEY } from '../decorators/Hypertable';
 import { timescaleMethods } from '../repository/TimescaleRepository';
@@ -19,12 +19,18 @@ const originalUndoLastMigration = DataSource.prototype.undoLastMigration;
 const originalSynchronize = DataSource.prototype.synchronize;
 const originalInitialize = DataSource.prototype.initialize;
 
+const eligibleEntityMetadatas = (entityMetadatas: EntityMetadata[]) => {
+  return entityMetadatas.filter((entity) => {
+    return typeof entity.target !== 'string';
+  })
+}
+
 DataSource.prototype.initialize = async function () {
   debug('Initializing TimescaleDB');
 
   const connection = await originalInitialize.call(this);
 
-  for (const entity of this.entityMetadatas) {
+  for (const entity of eligibleEntityMetadatas(this.entityMetadatas)) {
     const hypertableOptions = Reflect.getMetadata(HYPERTABLE_METADATA_KEY, entity.target);
     const aggregateOptions = Reflect.getMetadata(CONTINUOUS_AGGREGATE_METADATA_KEY, entity.target);
     const rollupOptions = Reflect.getMetadata(ROLLUP_METADATA_KEY, entity.target);
@@ -313,9 +319,7 @@ async function setupContinuousAggregates(dataSource: DataSource) {
 async function setupRollups(dataSource: DataSource) {
   debug('Setting up rollups');
 
-  const entities = dataSource.entityMetadatas;
-
-  for (const entity of entities) {
+  for (const entity of eligibleEntityMetadatas(dataSource.entityMetadatas)) {
     const rollupMetadata = Reflect.getMetadata(ROLLUP_METADATA_KEY, entity.target) as RollupMetadata;
     if (!rollupMetadata) continue;
 
@@ -399,9 +403,7 @@ async function setupRollups(dataSource: DataSource) {
 async function removeRollups(dataSource: DataSource) {
   debug('Removing rollups');
 
-  const entities = dataSource.entityMetadatas;
-
-  for (const entity of entities) {
+  for (const entity of eligibleEntityMetadatas(dataSource.entityMetadatas)) {
     const rollupMetadata = Reflect.getMetadata(ROLLUP_METADATA_KEY, entity.target);
 
     if (!rollupMetadata) continue;
@@ -423,9 +425,7 @@ async function removeRollups(dataSource: DataSource) {
 async function setupTimeColumns(dataSource: DataSource) {
   debug('Setting up time columns');
 
-  const entities = dataSource.entityMetadatas;
-
-  for (const entity of entities) {
+  for (const entity of eligibleEntityMetadatas(dataSource.entityMetadatas)) {
     const timeColumnMetadata = Reflect.getMetadata(TIME_COLUMN_METADATA_KEY, entity.target) as TimeColumnMetadata;
 
     if (timeColumnMetadata) {
