@@ -8,6 +8,7 @@ import { StockPrice } from './models/StockPrice';
 import { DailyPageStats } from './models/DailyPageStats';
 import { StockPrice1M } from './models/candlesticks/StockPrice1M';
 import { StockPrice1H } from './models/candlesticks/StockPrice1H';
+import { Page } from './models/Page';
 
 dotenv.config();
 
@@ -16,6 +17,6 @@ export const AppDataSource = new DataSource({
   url: process.env.DATABASE_URL,
   logger: new SimpleConsoleLogger(false),
   synchronize: false,
-  entities: [PageLoad, HourlyPageViews, StockPrice, DailyPageStats, StockPrice1M, StockPrice1H],
+  entities: [Page, PageLoad, HourlyPageViews, StockPrice, DailyPageStats, StockPrice1M, StockPrice1H],
   migrations: ['migrations/*.ts'],
 });
