@@ -9,4 +9,5 @@ export { Rollup, ROLLUP_METADATA_KEY } from './decorators/Rollup';
 export { CandlestickColumn, CANDLESTICK_COLUMN_METADATA_KEY } from './decorators/CandlestickColumn';
 export { TimeColumn, TIME_COLUMN_METADATA_KEY } from './decorators/TimeColumn';
 
+export * from '@timescaledb/schemas'
 export * from './repository/TimescaleRepository';
