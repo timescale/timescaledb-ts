@@ -100,6 +100,26 @@ describe('Hypertable', () => {
       const sql = TimescaleDB.createHypertable('my_table', options).up().build();
       expect(sql).toMatchSnapshot();
     });
+
+    it('should create and build a hypertable with a set chunk time interval', () => {
+      const options: CreateHypertableOptions = {
+        by_range: {
+          column_name: 'time',
+        },
+        compression: {
+          compress: true,
+          compress_orderby: 'time',
+          compress_segmentby: 'user_agent',
+          chunk_time_interval: '1d'
+          policy: {
+            schedule_interval: '1d',
+          },
+        },
+      };
+
+      const sql = TimescaleDB.createHypertable('my_table', options).up().build();
+      expect(sql).toMatchSnapshot();
+    });
   });
 
   describe('inspect', () => {
@@ -153,6 +173,26 @@ describe('Hypertable', () => {
           compress: true,
           compress_orderby: 'time',
           compress_segmentby: 'user_agent',
+          policy: {
+            schedule_interval: '1d',
+          },
+        },
+      };
+
+      const sql = TimescaleDB.createHypertable('my_table', options).down().build();
+      expect(sql).toMatchSnapshot();
+    });
+
+    it('should drop a hypertable with a set chunk time interval', () => {
+      const options: CreateHypertableOptions = {
+        by_range: {
+          column_name: 'time',
+        },
+        compression: {
+          compress: true,
+          compress_orderby: 'time',
+          compress_segmentby: 'user_agent',
+          chunk_time_interval: '1d',
           policy: {
             schedule_interval: '1d',
           },

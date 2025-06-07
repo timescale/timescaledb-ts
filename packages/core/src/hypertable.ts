@@ -41,6 +41,12 @@ class HypertableUpBuilder {
         const policy = `SELECT add_compression_policy(${escapeLiteral(this.name)}, INTERVAL ${interval});`;
         this.statements.push(policy);
       }
+
+      if (this.options.compression.chunk_time_interval) {
+        const interval = escapeLiteral(this.options.compression.chunk_time_interval);
+        const timeInterval = `SELECT set_chunk_time_interval(${escapeLiteral(this.name)}, INTERVAL ${interval});`;
+        this.statements,push(timeInterval);
+      }
     }
 
     const result = this.statements.join('\n');
