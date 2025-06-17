@@ -98,6 +98,10 @@ async function setupHypertables(dataSource: DataSource) {
   const entities = dataSource.entityMetadatas;
 
   for await (const entity of entities) {
+    if (entity.isJunction) {
+      continue;
+    }
+
     const options = Reflect.getMetadata(HYPERTABLE_METADATA_KEY, entity.target);
 
     if (options) {
