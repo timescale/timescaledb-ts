@@ -14,7 +14,7 @@
     "@timescaledb/typeorm": "workspace:^",
     "express": "^4.18.2",
     "pg": "^8.11.3",
-    "typeorm": "^0.3.20"
+    "typeorm": "^0.3.26"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.3.0"
